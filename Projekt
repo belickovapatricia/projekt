@@ -1,0 +1,115 @@
+import json
+from datetime import datetime
+import os
+
+# ---------------------------------------------------------
+# KROK 1: Definuj, kde sú uložené aké dáta
+# ---------------------------------------------------------
+
+DATA_FILE = "habits.json"
+
+
+# ---------------------------------------------------------
+# KROK 2: Načítaj existujúce návyky ALEBO vytvor nové
+# ---------------------------------------------------------
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    return {}  # no data yet
+
+
+# ---------------------------------------------------------
+# KROK 3: Ulož dáta do JSON súboru
+# ---------------------------------------------------------
+def save_data(data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+# ---------------------------------------------------------
+# KROK 4: Pridaj nový návyk
+# ---------------------------------------------------------
+def add_habit(data):
+    habit = input("Vlož návyk, ktorý chceš pridať: ").strip()
+
+    if habit in data:
+        print("Toto už existuje")
+        return
+
+    data[habit] = []  # create empty list for tracking dates
+    save_data(data)
+    print(f"'{habit}' úspešne pridané.")
+
+
+# ---------------------------------------------------------
+# STEP 5: Označ návyk ako skompletizovaný
+# ---------------------------------------------------------
+def mark_habit(data):
+    habit = input("Ktorý návyk si dnes ? ").strip()
+
+    if habit not in data:
+        print("Neexistujúce. Najprv pridaj návyk.")
+        return
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    if today in data[habit]:
+        print("Dnes si už tento návyk dokončil/a.")
+    else:
+        data[habit].append(today)
+        save_data(data)
+        print(f"✨ Označ '{habit}' ako vykonaný - {today}.")
+
+
+# ---------------------------------------------------------
+# STEP 6: Ukáž progres každého návyku
+# ---------------------------------------------------------
+def show_progress(data):
+    
+    print("\n Tvoj progres:")
+
+    if not data:
+        print("Žiaden návyk nenájdený. Najprv nejaký pridaj!")
+        return
+
+    for habit, dates in data.items():
+        print(f"- {habit}: {len(dates)} dní vykonaný")
+
+    print()  # blank line for readability
+
+
+# ---------------------------------------------------------
+# STEP 7: Hlavné menu - loop
+# ---------------------------------------------------------
+def main():
+    data = load_data()
+
+    while True:
+        print("\n Hlavné menu")
+        print("1. Pridaj nový návyk")
+        print("2. Označ ako skompletizovaný")
+        print("3. Ukáž progres")
+        print("4. Koniec")
+
+        choice = input("Vyber možnosť (1-4): ").strip()
+
+        if choice == "1":
+            add_habit(data)
+        elif choice == "2":
+            mark_habit(data)
+        elif choice == "3":
+            show_progress(data)
+        elif choice == "4":
+            print("Maj sa pekne! Nezabudni sa starať o svoje zdravie – duševné i fyzické")
+            break
+        else:
+            print("Nesprávna voľba, použi číslo od 1 do 4")
+
+
+# ---------------------------------------------------------
+# STEP 8: Hotovo
+# ---------------------------------------------------------
+if __name__ == "__main__":
+    main()
+
